@@ -1,0 +1,21 @@
+<md-card layout-padding flex="50" flex-offset="25" flex-xs="80" flex-offset-xs="10" flex-sm="70" flex-offset-sm="15" class="md-whiteframe-1dp">
+    <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">Login</span>
+          </md-card-title-text>
+        </md-card-title>
+    <md-card-content >
+      <form name="userForm" ng-submit="login()" layout="row" layout-wrap layout-align="center start">
+        <md-input-container class="md-block" flex="100">
+          <label>Username</label>
+          <input ng-model="user.username" type="text">
+        </md-input-container>
+        <md-input-container class="md-block" flex="100">
+          <label>Password</label>
+          <input ng-model="user.password" type="password">
+        </md-input-container>
+        <md-button class="md-raised md-primary" type="submit" flex>Login</md-button>
+      </form>
+  </md-card-content>
+
+</md-card>

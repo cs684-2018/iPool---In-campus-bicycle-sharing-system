@@ -1,0 +1,14 @@
+{
+  "name": "material-mean-boilerplate-front-end-lib",
+  "version": "1.0.0",
+  "description": "Front end libraries for Material Mean Boilerplate",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shinjan Mitra",
+  "license": "ISC",
+  "dependencies": {
+    "angular-jwt": "^0.1.9"
+  }
+}

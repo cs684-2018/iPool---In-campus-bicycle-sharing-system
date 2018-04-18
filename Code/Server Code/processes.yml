@@ -1,0 +1,4 @@
+apps:
+  - name: iPool
+    script: ./bin/www
+    exec_mode: fork
