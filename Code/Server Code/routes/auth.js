@@ -34,10 +34,6 @@ router.post('/authenticate', function(req, res) {
       } 
     }
   })
-
-
-
-
 });
 router.get('/verify',jwt_mid({secret: secret}),function(req,res,next){
     res.sendStatus(200);

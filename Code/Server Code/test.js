@@ -14,12 +14,15 @@ var config = require('./config');
 //   })) // => { username: 'barfooz', isAdmin: false }
 // })
 
-models.User.findOne({ where: {username: "zgod"} }).then(user => {
-    if( !user)
-    	console.log("not found")
-	else
-		console.log(user.password)
-      // res.status(401);
-      // res.json({ message: 'Authentication failed. User not found.' });
-    
-  })
+// models.User.findOne({ where: {username: "zgod"} }).then(user => {
+//     if( !user)
+//     	console.log("not found")
+// 	else
+// 		console.log(user.password)
+// })
+models.Device.create({}).then(device => {
+  // let's assume the default of isAdmin is false:
+  console.log(device.get({
+    plain: true
+  })) // => { username: 'barfooz', isAdmin: false }
+})
