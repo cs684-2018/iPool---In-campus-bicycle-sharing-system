@@ -10,37 +10,37 @@
 ***********************************************************************************/
 
 #define PHOTXPIN D2
-//#define MOTOR_POSITIVE D6
-//#define MOTOR_NEGATIVE D7
+#define PULSE_FREQ_HZ 20
+#define READ_PER_PULSE 10
+#define BITS_TO_READ 8
+#define DEVICE_ID 40
+
 #include <qrcode.h>
 #include <SSD1306.h>
+#include <Servo.h>
 
-byte message=0;
-bool state=false, lastState = false;
+bool message[BITS_TO_READ];
+bool state=false, lastState = false, readingFlag=false;
 unsigned long lastRead = 0;
-int counter =1, x1=0, x0=0;
+int counter =1, x1=0, x0=0, pos=0;
+bool unlockCode[8] = {1,0,0,1,1,0,0,1};
+bool lockCode[8] = {1,0,1,0,1,0,1,0};
+
 
 SSD1306  display(0x3c, D3, D5);
 QRcode qrcode (&display);
+Servo myservo;  // create servo object to control a servo
 
-void drawProgressBarDemo() {
-  int progress = (counter / 5) % 100;
-  // draw the progress bar
-  display.drawProgressBar(0, 32, 120, 10, progress);
-
-  // draw the percentage as String
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.drawString(64, 15, String(progress) + "%");
-}
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(PHOTXPIN,INPUT);
   Serial.begin(9600);
   Serial.println("");
-//  attachInterrupt(digitalPinToInterrupt(PHOTXPIN), countBits, CHANGE);
   Serial.println("Starting...");
 
+//  attachInterrupt(digitalPinToInterrupt(PHOTXPIN), countBits, CHANGE);
+  pinMode(PHOTXPIN,INPUT);
+  myservo.attach(D4); 
+  lock();
   display.init();
   display.clear();
   display.flipScreenVertically();
@@ -48,70 +48,77 @@ void setup() {
   display.setTextAlignment(TEXT_ALIGN_CENTER);
   display.drawString(64, 15, "iPool");
   display.display();
-//  display.setTextAlignment(TEXT_ALIGN_CENTER);
-//  display.setFont(ArialMT_Plain_16);
-//  display.drawString(0, 10, "iPool");
-//  for(int i=0;i<100;i++){
-//    counter ++;
-//    drawProgressBarDemo();
-//    delay(10);
-//  }
   lastRead = micros();
   display.setFont(ArialMT_Plain_16);
 }
-
+bool readPulse(){
+  int x1=0,x0=0;
+  bool x=false;
+  for(int i=0;i<READ_PER_PULSE;i++){
+    while(micros()-lastRead <=1000000/(PULSE_FREQ_HZ*READ_PER_PULSE));
+    lastRead = micros();  
+    state = bool(digitalRead(PHOTXPIN));
+    Serial.print(state);
+    if(state)
+      x1++;
+    else
+      x0++;
+  }
+  x = x0>=x1 ? false : true;
+  return x;
+}
 void loop() {
-  while(micros()-lastRead <=50000);
+  while(micros()-lastRead <=1000000/(PULSE_FREQ_HZ*READ_PER_PULSE));
   lastRead = micros();  
   state = bool(digitalRead(PHOTXPIN));
-  message = (message << 1) | state;
-  if(message == 0x99){
-    Serial.println("UNLOCK");
-    display.clear();
-    qrcode.init();
-    // create qrcode
-    qrcode.create("UNLOCKED");
-//    unlock();
+  
+  
+  if(state){ //received 1. start reading next 20 bits
+    Serial.println("START READING");
+    for(int j=0;j<BITS_TO_READ;j++){
+      counter = readPulse();
+      Serial.print("Read:");
+      Serial.println(counter);
+      message[j]= counter;
+    }
+    for(int j=0;j<BITS_TO_READ;j++)
+      Serial.print(message[j]);
+    if (compareBitset(message,unlockCode,8)){
+      qrcode.init();
+      qrcode.create("1,40");
+      unlock();
+    }
+    if (compareBitset(message,lockCode,8))
+      qrcode.create("0,40");
+      lock();
+    delay(500);
   }
-  if(message == 0xAA){
-    Serial.println("LOCK");
-    display.clear();
-//    lock();
-    qrcode.init();
-    // create qrcode
-    qrcode.create("LOCKED");
-  }
-//  if(state){
-//    x1++;
-//  }
-//  else{
-//    x0++;
-//  }
 }
-void countBits(){
-  if(state){
-    Serial.print("Ones:");
-    Serial.println(x1);
-  }
-  else{
-    Serial.print("Zeros:");
-    Serial.println(x0);
-  }
-  state = !state;
-  x1=0;x0=0;
+void printBitset(bool message[],size_t size){
+ for(int j=0;j<size;j++)
+    Serial.print(message[j]);
 }
-//void lock(){
-//  digitalWrite(MOTOR_POSITIVE, HIGH);
-//  digitalWrite(MOTOR_NEGATIVE, LOW);
-//  delay(250);
-//  digitalWrite(MOTOR_POSITIVE, LOW);
-//  digitalWrite(MOTOR_NEGATIVE, LOW);
-//}
-//void unlock(){
-//  digitalWrite(MOTOR_POSITIVE, LOW);
-//  digitalWrite(MOTOR_NEGATIVE, HIGH);
-//  delay(250);
-//  digitalWrite(MOTOR_POSITIVE, LOW);
-//  digitalWrite(MOTOR_NEGATIVE, LOW);
-//}
+bool compareBitset(bool message1[],bool message2[], size_t size){
+  for(int i=0;i<size;i++){
+    if(message1[i] != message2[i])
+      return false;
+  }
+  return true;
+}
+void lock(){
+  Serial.println("locking");
+  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+}
+void unlock(){
+  
+  Serial.println("unlocking");
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+}
 

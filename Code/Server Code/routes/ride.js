@@ -6,6 +6,8 @@ var config = require('../config');
 var jwt_mid = require('express-jwt');
 var secret = require('../config').secret;
 var jwt = require('jsonwebtoken');
+
+
 function dec2bin(dec){
     return (dec >>> 0).toString(2);
 }
@@ -18,6 +20,15 @@ function iPoolHash(plaintext){
 	return dec2bin(token);
 }
 /* POST request for new ride. Returns 4 byte token. */
+router.post('/', jwt_mid({secret: secret}), function(req, res, next) {
+	models.Ride.create({user_id:req.user.id}).then(ride => {
+		console.log(ride.get({
+			plain: true
+		})) // => { username: 'barfooz', isAdmin: false }
+		res.json({"token":iPoolHash(ride.id)});
+	})
+});
+
 router.post('/', jwt_mid({secret: secret}), function(req, res, next) {
 	models.Ride.create({user_id:req.user.id}).then(ride => {
 		console.log(ride.get({
