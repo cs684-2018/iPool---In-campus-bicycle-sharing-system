@@ -1,0 +1,1 @@
+node microwave(start,stop,sec,dooropen:bool) returns(light,heat,beep,longbeep:bool);

@@ -1,0 +1,22 @@
+node signal(lane_SN_sensor, lane_WE_sensor: bool) returns (lane_SN_R, lane_SN_G, lane_WE_R, lane_WE_G: bool);
+var lane_SN_wait_counter, lane_WE_wait_counter:int; lane_SN_active:bool;
+
+let
+
+	lane_SN_wait_counter = 0 -> if lane_SN_sensor and not pre lane_SN_active then pre lane_SN_wait_counter +1
+								else 0;
+	lane_WE_wait_counter = 0 -> if lane_WE_sensor and pre lane_SN_active then pre lane_WE_wait_counter +1
+								else 0;
+
+	lane_SN_active = false -> 	if not lane_WE_sensor and lane_SN_sensor then true
+								else if lane_WE_sensor and not lane_SN_sensor then false
+								else if lane_WE_sensor and lane_SN_sensor and lane_SN_wait_counter >= 10 then true
+								else if lane_WE_sensor and lane_SN_sensor and lane_WE_wait_counter >= 10 then false
+								else pre lane_SN_active;
+
+	lane_SN_R = true -> not lane_SN_active;
+	lane_SN_G = not lane_SN_R;
+
+	lane_WE_R = false -> lane_SN_active;
+	lane_WE_G = not lane_WE_R;
+tel

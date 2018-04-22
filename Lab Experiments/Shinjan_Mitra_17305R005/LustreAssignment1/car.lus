@@ -1,0 +1,14 @@
+node headlight(mode_bit_1, mode_bit_0, on:bool) returns (light,hi:bool);
+var flashing_count:int;
+let
+	light = 			if on = false then false
+						else true;
+
+	hi = 		 		if mode_bit_1 = true then true
+						else if mode_bit_0 = true and mode_bit_1 = false and flashing_count <=10 then true
+						else false;
+
+	flashing_count = 0->	if mode_bit_0 = true and mode_bit_1 = false then pre flashing_count + 1
+						else 0;
+
+tel

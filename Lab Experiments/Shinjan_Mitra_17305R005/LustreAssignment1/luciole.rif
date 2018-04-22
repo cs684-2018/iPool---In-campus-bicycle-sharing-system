@@ -1,0 +1,28 @@
+# Rdbg Version "1.162" ("9eaa54d")
+# sut: lus2lic mealy.lus -node mealy -exec -rif
+#inputs "input":bool 
+#outputs "output":bool "state":int 
+#step 1
+f #outs f 0
+#step 2
+f #outs f 0
+#step 3
+t #outs f 1
+#step 4
+t #outs f 1
+#step 5
+f #outs f 2
+#step 6
+t #outs f 3
+#step 7
+f #outs f 2
+#step 8
+t #outs f 3
+#step 9
+t #outs t 1
+#step 10
+f #outs f 2
+#step 11
+f #outs f 0
+#step 12
+f #outs f 0

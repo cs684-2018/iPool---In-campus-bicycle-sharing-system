@@ -1,0 +1,19 @@
+node JK(J, K, clock:bool) returns (Q,Q_:bool);
+let
+	Q = false -> 	if J and not K and clock and not pre clock then true
+					else if not J and K and clock and not pre clock then false
+					else if J and K and clock and not pre clock then not pre Q
+					else pre Q;
+
+	Q_ = true ->	not Q;
+tel
+
+node modulo12counter(clock:bool) returns(Q0,Q1,Q2,Q3: bool);
+var Q0_, Q1_, Q2_, Q3_: bool;
+let
+	(Q0, Q0_) = (false,true) ->	JK(true, true, clock);
+	(Q1, Q1_) = (false,true) ->	JK(pre Q0, pre Q0, clock);
+	(Q2, Q2_) = (false,true) ->	JK(pre Q1 and pre Q0 and pre Q3_, pre Q1 and pre Q0, clock);
+	(Q3, Q3_) = (false,true) ->	JK(pre Q2 and pre Q1 and pre Q0, pre Q1 and pre Q0, clock);
+
+tel

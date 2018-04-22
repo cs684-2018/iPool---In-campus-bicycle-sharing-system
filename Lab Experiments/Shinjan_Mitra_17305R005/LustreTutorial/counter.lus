@@ -1,0 +1,8 @@
+node COUNTER(init, incr : int; X, reset : bool) returns (C : int);
+var PC : int;
+let
+PC = init -> pre C;
+C = if reset then init
+else if X then (PC + incr)
+else PC;
+tel
