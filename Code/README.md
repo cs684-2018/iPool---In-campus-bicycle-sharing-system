@@ -33,18 +33,32 @@ Remove the items that do no apply to your project and keep the remaining ones.
 Installation Instructions 
 ========================= 
  
-If you need any software such as scilab, OpenCV etc. Please provide [links](http://example.com) to all these software.  
- 
+## Requirements
+The requirements can be classified into microcontroller, server side and UI
+
+### Microcontroller
+* Arduino IDE
+
+### Server side
+* NodeJS
+* Express
+* MySQL database
+
+### UI
+* Android Studio
+* Cordova (for initial POC)
+
+The component specific requirements are listed in the respective README files inside each subdirectory. 
  
 Demonstration Video 
 =========================  
-Add the youtube link of the screencast of your project demo.
+(https://youtu.be/7NXebecaryE)
 
 References 
 =========== 
  
 Please give references to importance resources.  
  
-+ [Title](http://example.org) 
++ [Cordova](https://cordova.apache.org/) 
 + [Title](http://example.org) 
 + [Title](http://example.org)
