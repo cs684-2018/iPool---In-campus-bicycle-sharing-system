@@ -15,27 +15,29 @@ function dec2bin(dec){
 function iPoolHash(plaintext){
 	var hash = config.key ^ plaintext; //simple XOR with secret. CHANGE THIS ASAP!!
 	console.log(dec2bin(hash));
-	var token = (hash | 0x8000) << 16 | plaintext; // shift hash by 2 bytes and append plaintext. Also make sure first bit is 1
+	var token = (hash | 0x8) << 4 | plaintext; // shift hash by 2 bytes and append plaintext. Also make sure first bit is 1
 	console.log(dec2bin(token));
 	return dec2bin(token);
 }
 /* POST request for new ride. Returns 4 byte token. */
-router.post('/', jwt_mid({secret: secret}), function(req, res, next) {
-	models.Ride.create({user_id:req.user.id}).then(ride => {
+router.post('/', function(req, res, next) {
+	models.Ride.create({user_id:1}).then(ride => {
 		console.log(ride.get({
 			plain: true
 		})) // => { username: 'barfooz', isAdmin: false }
-		res.json({"token":iPoolHash(ride.id)});
+        // res.json({"token":iPoolHash(ride.id)});
+		res.json({"token":"10111001"});
 	})
+
 });
 
-router.post('/', jwt_mid({secret: secret}), function(req, res, next) {
-	models.Ride.create({user_id:req.user.id}).then(ride => {
-		console.log(ride.get({
-			plain: true
-		})) // => { username: 'barfooz', isAdmin: false }
-		res.json({"token":iPoolHash(ride.id)});
-	})
-});
+// router.post('/', jwt_mid({secret: secret}), function(req, res, next) {
+// 	models.Ride.create({user_id:req.user.id}).then(ride => {
+// 		console.log(ride.get({
+// 			plain: true
+// 		})) // => { username: 'barfooz', isAdmin: false }
+// 		res.json({"token":iPoolHash(ride.id)});
+// 	})
+// });
 
 module.exports = router;

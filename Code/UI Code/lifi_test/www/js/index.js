@@ -129,5 +129,5 @@ function lock(){
 }
 function unlock(){
     // calibrate(photx, 0x99);
-    photx(0x99);
-}
+    photx(0xB1);
+ }

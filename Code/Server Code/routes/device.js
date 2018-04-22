@@ -54,16 +54,16 @@ device.on('timeout', function(thingName, clientToken) {
 });
 
 /* POST device location. */
-router.post('/:id', jwt_mid({secret: secret}), function(req, res, next) {
+router.get('/:id', function(req, res, next) {
 	console.log("publishing to AWS")
 	device.publish('$aws/things/thing40/shadow/update', JSON.stringify({
-   "state": {
-       "reported": {
-         "device63.206": req.body.latitude,
-         "device63.207": req.body.longitude,
-     }
- }
-}));
+	   "state": {
+	       "reported": {
+	         "device63.206": req.query.latitude,
+	         "device63.207": req.query.longitude,
+	     }
+	 }
+	}));
 });
 
 

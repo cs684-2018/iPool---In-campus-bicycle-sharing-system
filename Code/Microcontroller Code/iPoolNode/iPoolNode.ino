@@ -23,8 +23,8 @@ bool message[BITS_TO_READ];
 bool state=false, lastState = false, readingFlag=false;
 unsigned long lastRead = 0;
 int counter =1, x1=0, x0=0, pos=0;
-bool unlockCode[8] = {1,0,0,1,1,0,0,1};
-bool lockCode[8] = {1,0,1,0,1,0,1,0};
+bool lockCode[8] = {1,0,0,1,1,0,0,1};
+bool unlockCode[8] = {1,0,1,0,1,0,1,0};
 
 
 SSD1306  display(0x3c, D3, D5);
@@ -67,6 +67,24 @@ bool readPulse(){
   x = x0>=x1 ? false : true;
   return x;
 }
+bool checkMessage(bool message[],int size){
+  byte rideId =0, hash = 0;
+  
+  for(int i =size/2-1;i>=0;i--){
+    rideId = (rideId << 1) | message[i];
+  }
+  for(int i =size-1;i>=size/2;i--){
+    hash = (hash << 1) | message[i];
+  }
+  Serial.println();
+  Serial.println(rideId);
+  Serial.println(hash);
+  Serial.println(rideId ^ 0xA | 0x8);
+  Serial.println("End check");
+  if ((rideId ^ 0xA | 0x8 )== hash)
+    return true;
+  return false;
+}
 void loop() {
   while(micros()-lastRead <=1000000/(PULSE_FREQ_HZ*READ_PER_PULSE));
   lastRead = micros();  
@@ -75,22 +93,25 @@ void loop() {
   
   if(state){ //received 1. start reading next 20 bits
     Serial.println("START READING");
-    for(int j=0;j<BITS_TO_READ;j++){
+    for(int j=BITS_TO_READ-1;j>=0;j--){
       counter = readPulse();
       Serial.print("Read:");
       Serial.println(counter);
       message[j]= counter;
     }
-    for(int j=0;j<BITS_TO_READ;j++)
+    for(int j=BITS_TO_READ-1;j>=0;j--)
       Serial.print(message[j]);
-    if (compareBitset(message,unlockCode,8)){
+    if (checkMessage(message,8)){
       qrcode.init();
       qrcode.create("1,40");
       unlock();
     }
-    if (compareBitset(message,lockCode,8))
+    else if (compareBitset(message,lockCode,8)){
+//      checkMe/ssage(message,8);
+      qrcode.init();
       qrcode.create("0,40");
       lock();
+    }
     delay(500);
   }
 }
@@ -105,18 +126,18 @@ bool compareBitset(bool message1[],bool message2[], size_t size){
   }
   return true;
 }
-void lock(){
-  Serial.println("locking");
-  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+void unlock(){
+  Serial.println("unlocking");
+  for (pos = 0; pos <= 120; pos += 1) { // goes from 0 degrees to 180 degrees
     // in steps of 1 degree
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delay(15);                       // waits 15ms for the servo to reach the position
   }
 }
-void unlock(){
+void lock(){
   
-  Serial.println("unlocking");
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+  Serial.println("locking");
+  for (pos = 120; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delay(15);                       // waits 15ms for the servo to reach the position
   }
